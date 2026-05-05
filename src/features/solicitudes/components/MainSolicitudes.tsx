@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 
 import { Button }   from '@/components/ui/button';
-import { Badge }    from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Card,
@@ -51,12 +50,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 
 import { ReviewForm }          from './ReviewForm';
 import {
@@ -70,6 +63,7 @@ import type {
   ApplicationStatus,
 } from '../types/solicitudes.types';
 import { formatDate, formatCurrency } from '@/lib/utils';
+import { LoanDetailDrawer } from '@/components/ui/loan-detail-drawer';
 
 // ─── Status config ────────────────────────────────────────────
 
@@ -168,6 +162,23 @@ export function MainSolicitudes() {
   const canCancel = (status: ApplicationStatus) =>
     !['APPROVED', 'REJECTED', 'CANCELLED'].includes(status);
 
+  // Transformar datos de solicitud para el drawer
+  const transformApplicationForDrawer = (app: LoanApplication): any => {
+    return {
+      id: app.id,
+      status: app.status,
+      createdAt: app.createdAt,
+      requestedAmount: app.requestedAmount,
+      requestedTerm: app.requestedTerm,
+      purpose: app.purpose,
+      analystNotes: app.analystNotes,
+      reviewedAt: app.reviewedAt,
+      // Estos campos pueden venir del review si existen
+      approvedAmount: (app as any).approvedAmount,
+      interestRate: (app as any).interestRate,
+    };
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -246,7 +257,7 @@ export function MainSolicitudes() {
                     Fecha
                   </th>
                   <th className="px-4 py-3" />
-                 </tr>
+                </tr>
               </thead>
               <tbody>
                 {isLoading
@@ -255,11 +266,13 @@ export function MainSolicitudes() {
                         key={i}
                         className="border-b border-border/40"
                       >
-                        {Array.from({ length: 7 }).map((_, j) => (
-                          <td key={j} className="px-4 py-3">
-                            <Skeleton className="h-4 w-full rounded" />
-                          </td>
-                        ))}
+                        <td className="px-4 py-3"><Skeleton className="h-4 w-16 rounded" /></td>
+                        <td className="px-4 py-3"><Skeleton className="h-4 w-24 rounded" /></td>
+                        <td className="px-4 py-3"><Skeleton className="h-4 w-16 rounded" /></td>
+                        <td className="px-4 py-3 hidden md:table-cell"><Skeleton className="h-4 w-32 rounded" /></td>
+                        <td className="px-4 py-3"><Skeleton className="h-6 w-20 rounded-full" /></td>
+                        <td className="px-4 py-3 hidden lg:table-cell"><Skeleton className="h-4 w-24 rounded" /></td>
+                        <td className="px-4 py-3"><Skeleton className="h-8 w-8 rounded" /></td>
                       </tr>
                     ))
                   : !data?.data || data.data.length === 0
@@ -291,7 +304,8 @@ export function MainSolicitudes() {
                         key={app.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="border-b border-border/40 hover:bg-muted/40 transition-colors"
+                        className="border-b border-border/40 hover:bg-muted/40 transition-colors cursor-pointer"
+                        onClick={() => openDetail(app)}
                       >
                         <td className="px-4 py-3">
                           <span className="font-mono text-xs text-muted-foreground">
@@ -320,7 +334,7 @@ export function MainSolicitudes() {
                         <td className="px-4 py-3 text-muted-foreground text-xs hidden lg:table-cell">
                           {formatDate(app.createdAt)}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -373,7 +387,7 @@ export function MainSolicitudes() {
             </table>
           </div>
 
-          {/* Pagination - ✅ Usando valores seguros */}
+          {/* Pagination */}
           {data && data.data && data.data.length > 0 && totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-border/60">
               <p className="text-xs text-muted-foreground">
@@ -425,90 +439,24 @@ export function MainSolicitudes() {
           </DialogHeader>
           {selected && (
             <ReviewForm
-              application={selected}
-              onSubmit={handleReview}
-              isPending={reviewMutation.isPending}
-              onCancel={() => setReviewOpen(false)}
-            />
+            application={selected!}
+            onSubmit={handleReview}
+            isPending={reviewMutation.isPending}
+            onCancel={() => setReviewOpen(false)}
+            open={reviewOpen}
+            onOpenChange={setReviewOpen}
+          />
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Sheet detalle */}
-      <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
-        <SheetContent className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>
-              Solicitud #{selected?.id}
-            </SheetTitle>
-          </SheetHeader>
-          {selected && (
-            <div className="mt-6 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  {
-                    label: 'Monto solicitado',
-                    value: formatCurrency(selected.requestedAmount),
-                  },
-                  {
-                    label: 'Plazo',
-                    value: `${selected.requestedTerm} meses`,
-                  },
-                  {
-                    label: 'Estado',
-                    value: statusConfig[selected.status]?.label ?? selected.status,
-                  },
-                  {
-                    label: 'Fecha',
-                    value: formatDate(selected.createdAt),
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    className="bg-muted/50 rounded-xl p-3"
-                  >
-                    <p className="text-xs text-muted-foreground">
-                      {item.label}
-                    </p>
-                    <p className="font-semibold text-sm mt-0.5">
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {selected.purpose && (
-                <div className="bg-muted/50 rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Propósito
-                  </p>
-                  <p className="text-sm">{selected.purpose}</p>
-                </div>
-              )}
-
-              {selected.analystNotes && (
-                <div className="bg-muted/50 rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Notas del analista
-                  </p>
-                  <p className="text-sm">{selected.analystNotes}</p>
-                </div>
-              )}
-
-              {selected.reviewedAt && (
-                <div className="bg-muted/50 rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    Revisada el
-                  </p>
-                  <p className="text-sm">
-                    {formatDate(selected.reviewedAt)}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
+      {/* LoanDetailDrawer - Panel lateral moderno para solicitudes */}
+      <LoanDetailDrawer
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        data={selected ? transformApplicationForDrawer(selected) : null}
+        type="application"
+      />
 
       {/* AlertDialog cancelar */}
       <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>

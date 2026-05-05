@@ -1,23 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState }  from 'react';
-import { motion }    from 'framer-motion';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
-  Plus, MoreHorizontal, RefreshCw,
-  Wallet, RotateCcw, Eye,
-  CheckCircle, XCircle, Clock,
+  Plus,
+  MoreHorizontal,
+  RefreshCw,
+  Wallet,
+  RotateCcw,
+  Eye,
+  CheckCircle,
+  XCircle,
+  Clock,
 } from 'lucide-react';
 
-import { Button }   from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,22 +42,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 
-import { PagoForm }                           from './PagoForm';
+import { PagoForm } from './PagoForm';
+import { PaymentDetailDrawer } from '@/components/ui/payment-detail-drawer';
 import { usePagos, useCreatePago, useReversePago } from '../hooks/use-pagos';
 import type { Payment, PaymentFilters, PaymentStatus } from '../types/pagos.types';
-import { formatCurrency, formatDateTime }     from '@/lib/utils';
+import { formatCurrency, formatDateTime } from '@/lib/utils';
 
 // ─── Status config ────────────────────────────────────────────
 
 const statusConfig: Record<PaymentStatus, { label: string; className: string; icon: React.ReactNode }> = {
-  PENDING:   {
+  PENDING: {
     label: 'Pendiente',
     className: 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400',
     icon: <Clock className="h-3 w-3" />,
@@ -67,12 +62,12 @@ const statusConfig: Record<PaymentStatus, { label: string; className: string; ic
     className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400',
     icon: <CheckCircle className="h-3 w-3" />,
   },
-  FAILED:    {
+  FAILED: {
     label: 'Fallido',
     className: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
     icon: <XCircle className="h-3 w-3" />,
   },
-  REVERSED:  {
+  REVERSED: {
     label: 'Revertido',
     className: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
     icon: <RotateCcw className="h-3 w-3" />,
@@ -82,15 +77,15 @@ const statusConfig: Record<PaymentStatus, { label: string; className: string; ic
 // ─── Main component ───────────────────────────────────────────
 
 export function MainPagos() {
-  const [filters, setFilters]         = useState<PaymentFilters>({ page: 1, limit: 10 });
-  const [createOpen, setCreateOpen]   = useState(false);
-  const [detailOpen, setDetailOpen]   = useState(false);
+  const [filters, setFilters] = useState<PaymentFilters>({ page: 1, limit: 10 });
+  const [formOpen, setFormOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [reverseOpen, setReverseOpen] = useState(false);
-  const [selected, setSelected]       = useState<Payment | null>(null);
+  const [selected, setSelected] = useState<Payment | null>(null);
 
   const { data, isLoading, refetch } = usePagos(filters);
-  const createMutation               = useCreatePago();
-  const reverseMutation              = useReversePago();
+  const createMutation = useCreatePago();
+  const reverseMutation = useReversePago();
 
   // ✅ Valores seguros para evitar errores de undefined
   const totalPagos = data?.meta?.total ?? 0;
@@ -100,19 +95,29 @@ export function MainPagos() {
   const hasNextPage = data?.meta?.hasNextPage ?? false;
   const hasPrevPage = data?.meta?.hasPrevPage ?? false;
 
-  const openDetail  = (p: Payment) => { setSelected(p); setDetailOpen(true); };
-  const openReverse = (p: Payment) => { setSelected(p); setReverseOpen(true); };
+  const openDetail = (p: Payment) => {
+    setSelected(p);
+    setDetailOpen(true);
+  };
+
+  const openReverse = (p: Payment) => {
+    setSelected(p);
+    setReverseOpen(true);
+  };
 
   const handleCreate = (formData: any) => {
     createMutation.mutate(formData, {
-      onSuccess: () => setCreateOpen(false),
+      onSuccess: () => setFormOpen(false),
     });
   };
 
   const handleReverse = () => {
     if (!selected) return;
     reverseMutation.mutate(selected.id, {
-      onSettled: () => { setReverseOpen(false); setSelected(null); },
+      onSettled: () => {
+        setReverseOpen(false);
+        setSelected(null);
+      },
     });
   };
 
@@ -127,7 +132,7 @@ export function MainPagos() {
           </p>
         </div>
         <Button
-          onClick={() => setCreateOpen(true)}
+          onClick={() => setFormOpen(true)}
           className="rounded-xl gap-2 font-semibold"
         >
           <Plus className="h-4 w-4" />
@@ -185,17 +190,33 @@ export function MainPagos() {
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Estado</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Fecha</th>
                   <th className="px-4 py-3" />
-                 </tr>
+                </tr>
               </thead>
               <tbody>
                 {isLoading
                   ? Array.from({ length: 6 }).map((_, i) => (
                       <tr key={i} className="border-b border-border/40">
-                        {Array.from({ length: 7 }).map((_, j) => (
-                          <td key={j} className="px-4 py-3">
-                            <Skeleton className="h-4 w-full rounded" />
-                          </td>
-                        ))}
+                        <td className="px-4 py-3">
+                          <Skeleton className="h-4 w-28 rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton className="h-4 w-16 rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton className="h-4 w-20 rounded" />
+                        </td>
+                        <td className="px-4 py-3 hidden md:table-cell">
+                          <Skeleton className="h-4 w-12 rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton className="h-6 w-20 rounded-full" />
+                        </td>
+                        <td className="px-4 py-3 hidden lg:table-cell">
+                          <Skeleton className="h-4 w-28 rounded" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton className="h-8 w-8 rounded" />
+                        </td>
                       </tr>
                     ))
                   : !data?.data || data.data.length === 0
@@ -213,7 +234,7 @@ export function MainPagos() {
                               Registra el primer pago con el botón de arriba
                             </p>
                             <Button
-                              onClick={() => setCreateOpen(true)}
+                              onClick={() => setFormOpen(true)}
                               size="sm"
                               className="rounded-xl mt-1"
                             >
@@ -232,7 +253,8 @@ export function MainPagos() {
                           key={payment.id}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          className="border-b border-border/40 hover:bg-muted/40 transition-colors"
+                          className="border-b border-border/40 hover:bg-muted/40 transition-colors cursor-pointer"
+                          onClick={() => openDetail(payment)}
                         >
                           <td className="px-4 py-3">
                             <span className="font-mono text-xs text-primary font-semibold">
@@ -249,7 +271,9 @@ export function MainPagos() {
                             {payment.installmentId ? `#${payment.installmentId}` : '—'}
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${st.className}`}>
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${st.className}`}
+                            >
                               {st.icon}
                               {st.label}
                             </span>
@@ -257,7 +281,7 @@ export function MainPagos() {
                           <td className="px-4 py-3 text-muted-foreground text-xs hidden lg:table-cell">
                             {formatDateTime(payment.paymentDate)}
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
@@ -294,18 +318,20 @@ export function MainPagos() {
             </table>
           </div>
 
-          {/* Pagination - ✅ Usando valores seguros */}
+          {/* Pagination */}
           {data && data.data && data.data.length > 0 && totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-border/60">
               <p className="text-xs text-muted-foreground">
                 {((currentPage - 1) * currentLimit) + 1}
-                {' '}—{' '}
+                {' — '}
                 {Math.min(currentPage * currentLimit, totalPagos)}
-                {' '}de {totalPagos}
+                {' de '}
+                {totalPagos}
               </p>
               <div className="flex gap-2">
                 <Button
-                  variant="outline" size="sm"
+                  variant="outline"
+                  size="sm"
                   disabled={!hasPrevPage}
                   onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) - 1 }))}
                   className="rounded-xl text-xs h-8"
@@ -313,7 +339,8 @@ export function MainPagos() {
                   Anterior
                 </Button>
                 <Button
-                  variant="outline" size="sm"
+                  variant="outline"
+                  size="sm"
                   disabled={!hasNextPage}
                   onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))}
                   className="rounded-xl text-xs h-8"
@@ -326,48 +353,21 @@ export function MainPagos() {
         </CardContent>
       </Card>
 
-      {/* Dialog crear */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Registrar Pago</DialogTitle>
-          </DialogHeader>
-          <PagoForm
-            onSubmit={handleCreate}
-            isPending={createMutation.isPending}
-            onCancel={() => setCreateOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* PagoForm - Drawer para registrar pago */}
+      <PagoForm
+        onSubmit={handleCreate}
+        isPending={createMutation.isPending}
+        onCancel={() => setFormOpen(false)}
+        open={formOpen}
+        onOpenChange={setFormOpen}
+      />
 
-      {/* Sheet detalle */}
-      <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
-        <SheetContent className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Detalle del pago</SheetTitle>
-          </SheetHeader>
-          {selected && (
-            <div className="mt-6 space-y-3">
-              {[
-                { label: 'Referencia',   value: selected.reference },
-                { label: 'Monto',        value: formatCurrency(selected.amount) },
-                { label: 'Préstamo',     value: `#${selected.loanId}` },
-                { label: 'Cuota',        value: selected.installmentId ? `#${selected.installmentId}` : '—' },
-                { label: 'Estado',       value: statusConfig[selected.status]?.label ?? selected.status },
-                { label: 'Fecha',        value: formatDateTime(selected.paymentDate) },
-                { label: 'Notas',        value: selected.notes ?? '—' },
-              ].map((item) => (
-                <div key={item.label} className="flex justify-between items-center py-2 border-b border-border/40">
-                  <span className="text-sm text-muted-foreground">{item.label}</span>
-                  <span className="text-sm font-semibold text-foreground text-right max-w-55 truncate">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
+      {/* PaymentDetailDrawer - Panel lateral para ver detalles */}
+      <PaymentDetailDrawer
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        payment={selected}
+      />
 
       {/* AlertDialog revertir */}
       <AlertDialog open={reverseOpen} onOpenChange={setReverseOpen}>
@@ -377,8 +377,7 @@ export function MainPagos() {
             <AlertDialogDescription>
               Se revertirá el pago de{' '}
               <strong>{selected ? formatCurrency(selected.amount) : ''}</strong>{' '}
-              con referencia{' '}
-              <strong>{selected?.reference}</strong>.
+              con referencia <strong>{selected?.reference}</strong>.
               La cuota asociada volverá a estado pendiente.
             </AlertDialogDescription>
           </AlertDialogHeader>

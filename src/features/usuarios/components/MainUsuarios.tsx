@@ -1,33 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useCallback }  from 'react';
 import { motion }                  from 'framer-motion';
 import {
-  Plus, Search, Filter, MoreHorizontal,
+  Plus, Search, MoreHorizontal,
   Pencil, Trash2, ShieldCheck, UserX,
   RefreshCw, Users,
 } from 'lucide-react';
 
 import { Button }       from '@/components/ui/button';
 import { Input }        from '@/components/ui/input';
-import { Badge }        from '@/components/ui/badge';
 import { Skeleton }     from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
 } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,6 +44,7 @@ import {
 } from '@/components/ui/select';
 
 import { UsuarioForm }        from './UsuarioForm';
+import { UserDetailDrawer }   from '@/components/ui/user-detail-drawer';
 import {
   useUsuarios,
   useCreateUsuario,
@@ -86,7 +77,8 @@ export function MainUsuarios() {
     page: 1, limit: 10,
   });
   const [search,        setSearch]        = useState('');
-  const [dialogOpen,    setDialogOpen]    = useState(false);
+  const [formOpen,      setFormOpen]      = useState(false);
+  const [detailOpen,    setDetailOpen]    = useState(false);
   const [deleteOpen,    setDeleteOpen]    = useState(false);
   const [selectedUser,  setSelectedUser]  = useState<User | null>(null);
   const [deletingId,    setDeletingId]    = useState<number | null>(null);
@@ -125,12 +117,17 @@ export function MainUsuarios() {
 
   const openCreate = () => {
     setSelectedUser(null);
-    setDialogOpen(true);
+    setFormOpen(true);
   };
 
   const openEdit = (user: User) => {
     setSelectedUser(user);
-    setDialogOpen(true);
+    setFormOpen(true);
+  };
+
+  const openDetail = (user: User) => {
+    setSelectedUser(user);
+    setDetailOpen(true);
   };
 
   const openDelete = (id: number) => {
@@ -142,11 +139,11 @@ export function MainUsuarios() {
     if (selectedUser) {
       updateMutation.mutate(
         { id: selectedUser.id, data: formData },
-        { onSuccess: () => setDialogOpen(false) },
+        { onSuccess: () => setFormOpen(false) },
       );
     } else {
       createMutation.mutate(formData, {
-        onSuccess: () => setDialogOpen(false),
+        onSuccess: () => setFormOpen(false),
       });
     }
   };
@@ -336,7 +333,8 @@ export function MainUsuarios() {
                         key={user.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="border-b border-border/40 hover:bg-muted/40 transition-colors"
+                        className="border-b border-border/40 hover:bg-muted/40 transition-colors cursor-pointer"
+                        onClick={() => openDetail(user)}
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
@@ -374,7 +372,7 @@ export function MainUsuarios() {
                         <td className="px-4 py-3 text-muted-foreground text-xs hidden xl:table-cell">
                           {formatDate(user.createdAt)}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -419,7 +417,7 @@ export function MainUsuarios() {
             </table>
           </div>
 
-          {/* Pagination - ✅ Ahora usa valores seguros */}
+          {/* Pagination */}
           {data && data.data && data.data.length > 0 && totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-border/60">
               <p className="text-xs text-muted-foreground">
@@ -457,22 +455,22 @@ export function MainUsuarios() {
         </CardContent>
       </Card>
 
-      {/* Dialog crear/editar */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedUser ? 'Editar usuario' : 'Nuevo usuario'}
-            </DialogTitle>
-          </DialogHeader>
-          <UsuarioForm
-            user={selectedUser ?? undefined}
-            onSubmit={handleSubmit}
-            isPending={isPending}
-            onCancel={() => setDialogOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* UsuarioForm - Drawer para crear/editar */}
+      <UsuarioForm
+        user={selectedUser ?? undefined}
+        onSubmit={handleSubmit}
+        isPending={isPending}
+        onCancel={() => setFormOpen(false)}
+        open={formOpen}
+        onOpenChange={setFormOpen}
+      />
+
+      {/* UserDetailDrawer - Panel lateral para ver detalles */}
+      <UserDetailDrawer
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        user={selectedUser}
+      />
 
       {/* AlertDialog eliminar */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>

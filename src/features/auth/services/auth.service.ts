@@ -20,22 +20,49 @@ function unwrap<T>(body: any): T {
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthTokens> {
-    const res = await apiClient.post('/auth/login', credentials);
-    const tokens = unwrap<AuthTokens>(res.data);
-    if (!tokens?.accessToken) throw new Error('No se recibió token de acceso');
+    try {
+      const res = await apiClient.post('/auth/login', credentials);
+      const tokens = unwrap<AuthTokens>(res.data);
 
-    localStorage.setItem('accessToken', tokens.accessToken);
-    if (tokens.refreshToken) {
-      Cookies.set('refreshToken', tokens.refreshToken, { expires: 7, path: '/' });
+      if (!tokens?.accessToken) {
+        throw new Error('No se recibió token de acceso');
+      }
+
+      localStorage.setItem('accessToken', tokens.accessToken);
+      if (tokens.refreshToken) {
+        Cookies.set('refreshToken', tokens.refreshToken, { expires: 7, path: '/' });
+      }
+      return tokens;
+    } catch (error: any) {
+      // Manejar errores de autenticación
+      if (error.response?.status === 401) {
+        throw new Error('Credenciales incorrectas. Por favor, verifica tu correo y contraseña.');
+      }
+      if (error.response?.status === 400) {
+        throw new Error('Datos inválidos. Por favor, verifica la información ingresada.');
+      }
+      if (error.response?.data?.message) {
+        const message = Array.isArray(error.response.data.message)
+          ? error.response.data.message[0]
+          : error.response.data.message;
+        throw new Error(message);
+      }
+      throw new Error('Error de conexión. Por favor, intenta de nuevo más tarde.');
     }
-    return tokens;
   },
 
   async me(): Promise<AuthUser> {
-    const res = await apiClient.get('/auth/me');
-    const user = unwrap<AuthUser>(res.data);
-    if (!user?.id) throw new Error('No se pudo obtener el usuario');
-    return user;
+    try {
+      const res = await apiClient.get('/auth/me');
+      const user = unwrap<AuthUser>(res.data);
+      if (!user?.id) throw new Error('No se pudo obtener el usuario');
+      return user;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      throw new Error('Error al obtener información del usuario');
+    }
   },
 
   async logout(refreshToken: string): Promise<void> {
@@ -56,15 +83,19 @@ export const authService = {
   },
 
   async refresh(refreshToken: string): Promise<AuthTokens> {
-    const res = await apiClient.post('/auth/refresh', { refreshToken });
-    const tokens = unwrap<AuthTokens>(res.data);
-    if (!tokens?.accessToken) throw new Error('No se pudo refrescar el token');
+    try {
+      const res = await apiClient.post('/auth/refresh', { refreshToken });
+      const tokens = unwrap<AuthTokens>(res.data);
+      if (!tokens?.accessToken) throw new Error('No se pudo refrescar el token');
 
-    localStorage.setItem('accessToken', tokens.accessToken);
-    if (tokens.refreshToken) {
-      Cookies.set('refreshToken', tokens.refreshToken, { expires: 7, path: '/' });
+      localStorage.setItem('accessToken', tokens.accessToken);
+      if (tokens.refreshToken) {
+        Cookies.set('refreshToken', tokens.refreshToken, { expires: 7, path: '/' });
+      }
+      return tokens;
+    } catch (error: any) {
+      throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
     }
-    return tokens;
   },
 
   isAuthenticated(): boolean {

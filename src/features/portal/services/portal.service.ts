@@ -243,6 +243,22 @@ export const portalService = {
     return this.getMisPaymentMethods(); // Reutilizar método existente
   },
 
+  async getApplicationDetail(id: number) {
+    const response = await apiClient.get(`/loan-applications/${id}`);
+    console.log('Raw application response:', response.data);
+    const unwrapped = unwrapSingle(response.data);
+    console.log('Unwrapped application:', unwrapped);
+    return unwrapped;
+  },
+
+  async getLoanDetail(id: number) {
+    const response = await apiClient.get(`/loans/${id}`);
+    console.log('Raw loan response:', response.data);
+    const unwrapped = unwrapSingle(response.data);
+    console.log('Unwrapped loan:', unwrapped);
+    return unwrapped;
+  },
+
   // ─── GUARDAR DATOS ──────────────────────────────────────────
 
   async saveAddress(data: any): Promise<any> {

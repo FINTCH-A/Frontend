@@ -13,7 +13,7 @@ import { useAuthStore }  from '@/store/auth.store';
 import type { LoginRequest } from '../types/auth.types';
 
 export function useLogin() {
-  const router  = useRouter();
+  const router = useRouter();
   const setUser = useAuthStore((s) => s.setUser);
 
   return useMutation({
@@ -41,13 +41,9 @@ export function useLogin() {
       }, 100);
     },
     onError: (error: any) => {
-      console.error('Login error:', error);
-      const msg =
-        error?.response?.data?.message ??
-        error?.message ??
-        'Error al iniciar sesión';
-      toast.error(Array.isArray(msg) ? msg[0] : msg);
-      cookieStorage.clearTokens();
+      // Solo loguear el error, no mostrar toast
+      console.error('Login mutation error:', error);
+      // El error se propaga automáticamente al componente
     },
   });
 }

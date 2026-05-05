@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState }  from 'react';
-import { motion }    from 'framer-motion';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   Plus, MoreHorizontal, RefreshCw,
   Banknote, Eye, Send,
-  CheckCircle, Clock, AlertCircle,
 } from 'lucide-react';
 
-import { Button }   from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -43,42 +42,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 
-import { PrestamoForm }                      from './PrestamoForm';
+import { PrestamoForm } from './PrestamoForm';
 import { usePrestamos, useCreatePrestamo, useDesembolsarPrestamo } from '../hooks/use-prestamos';
 import type { Loan, LoanFilters, LoanStatus } from '../types/prestamos.types';
-import { formatCurrency, formatDate }         from '@/lib/utils';
+import { formatCurrency, formatDate } from '@/lib/utils';
+import { LoanDetailDrawer } from '@/components/ui/loan-detail-drawer';
 
-// ─── Status config ────────────────────────────────────────────
+// ─── Status config con soporte para modo oscuro ────────────────────────────
 
 const statusConfig: Record<LoanStatus, { label: string; className: string }> = {
-  PENDING:   { label: 'Pendiente',  className: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' },
-  APPROVED:  { label: 'Aprobado',   className: 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400' },
-  REJECTED:  { label: 'Rechazado',  className: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400' },
-  ACTIVE:    { label: 'Activo',     className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400' },
-  PAID:      { label: 'Pagado',     className: 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400' },
-  DEFAULTED: { label: 'En mora',    className: 'bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400' },
-  CANCELLED: { label: 'Cancelado',  className: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500' },
+  PENDING: { label: 'Pendiente', className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-400' },
+  APPROVED: { label: 'Aprobado', className: 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400' },
+  REJECTED: { label: 'Rechazado', className: 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400' },
+  ACTIVE: { label: 'Activo', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400' },
+  PAID: { label: 'Pagado', className: 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400' },
+  DEFAULTED: { label: 'En mora', className: 'bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-400' },
+  CANCELLED: { label: 'Cancelado', className: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' },
 };
 
 // ─── Main component ───────────────────────────────────────────
 
 export function MainPrestamos() {
-  const [filters, setFilters]         = useState<LoanFilters>({ page: 1, limit: 10 });
-  const [createOpen, setCreateOpen]   = useState(false);
-  const [detailOpen, setDetailOpen]   = useState(false);
+  const [filters, setFilters] = useState<LoanFilters>({ page: 1, limit: 10 });
+  const [createOpen, setCreateOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [disburseOpen, setDisburseOpen] = useState(false);
-  const [selected, setSelected]       = useState<Loan | null>(null);
+  const [selected, setSelected] = useState<Loan | null>(null);
 
-  const { data, isLoading, refetch }  = usePrestamos(filters);
-  const createMutation                = useCreatePrestamo();
-  const disburseMutation              = useDesembolsarPrestamo();
+  const { data, isLoading, refetch } = usePrestamos(filters);
+  const createMutation = useCreatePrestamo();
+  const disburseMutation = useDesembolsarPrestamo();
 
   // ✅ Valores seguros para evitar errores de undefined
   const totalPrestamos = data?.meta?.total ?? 0;
@@ -88,8 +82,15 @@ export function MainPrestamos() {
   const hasNextPage = data?.meta?.hasNextPage ?? false;
   const hasPrevPage = data?.meta?.hasPrevPage ?? false;
 
-  const openDetail   = (loan: Loan) => { setSelected(loan); setDetailOpen(true); };
-  const openDisburse = (loan: Loan) => { setSelected(loan); setDisburseOpen(true); };
+  const openDetail = (loan: Loan) => {
+    setSelected(loan);
+    setDetailOpen(true);
+  };
+
+  const openDisburse = (loan: Loan) => {
+    setSelected(loan);
+    setDisburseOpen(true);
+  };
 
   const handleCreate = (formData: any) => {
     createMutation.mutate(formData, {
@@ -100,8 +101,43 @@ export function MainPrestamos() {
   const handleDisburse = () => {
     if (!selected) return;
     disburseMutation.mutate(selected.id, {
-      onSettled: () => { setDisburseOpen(false); setSelected(null); },
+      onSettled: () => {
+        setDisburseOpen(false);
+        setSelected(null);
+      },
     });
+  };
+
+  // Transformar los datos del préstamo para que coincidan con la estructura esperada por LoanDetailDrawer
+  const transformLoanForDrawer = (loan: Loan): any => {
+    // Calcular cuota mensual aproximada (sistema francés)
+    const calculateMonthlyPayment = (amount: number, annualRate: number, months: number): number => {
+      if (annualRate === 0) return amount / months;
+      const monthlyRate = annualRate / 12;
+      const factor = Math.pow(1 + monthlyRate, months);
+      return (amount * monthlyRate * factor) / (factor - 1);
+    };
+
+    const monthlyPayment = calculateMonthlyPayment(loan.approvedAmount, loan.interestRate, loan.termMonths);
+
+    return {
+      id: loan.id,
+      status: loan.status,
+      createdAt: loan.createdAt,
+      amount: loan.approvedAmount,
+      requestedAmount: loan.requestedAmount,
+      totalAmount: loan.totalAmount,
+      term: loan.termMonths,
+      interestRate: (loan.interestRate * 100).toFixed(2),
+      monthlyPayment: monthlyPayment,
+      disbursedAt: loan.disbursedAt,
+      dueDate: loan.dueDate,
+      loanCode: loan.loanCode,
+      amortization: loan.amortization,
+      interestType: loan.interestType,
+      currency: loan.currency,
+      loanApplicationId: loan.loanApplicationId,
+    };
   };
 
   return (
@@ -179,124 +215,127 @@ export function MainPrestamos() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading
-                  ? Array.from({ length: 5 }).map((_, i) => (
-                      <tr key={i} className="border-b border-border/40">
-                        {Array.from({ length: 8 }).map((_, j) => (
-                          <td key={j} className="px-4 py-3">
-                            <Skeleton className="h-4 w-full rounded" />
-                          </td>
-                        ))}
-                      </tr>
-                    ))
-                  : !data?.data || data.data.length === 0
-                  ? (
-                      <tr>
-                        <td colSpan={8} className="px-4 py-16 text-center">
-                          <div className="flex flex-col items-center gap-3">
-                            <div className="p-4 bg-muted rounded-2xl">
-                              <Banknote className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                            <p className="font-semibold">No hay préstamos</p>
-                            <p className="text-sm text-muted-foreground">
-                              Crea un préstamo desde una solicitud aprobada
-                            </p>
-                            <Button
-                              onClick={() => setCreateOpen(true)}
-                              size="sm"
-                              className="rounded-xl mt-1"
-                            >
-                              <Plus className="h-4 w-4 mr-2" />
-                              Nuevo Préstamo
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  : data.data.map((loan) => {
-                    const st = statusConfig[loan.status];
-                    if (!st) return null;
-                    return (
-                      <motion.tr
-                        key={loan.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="border-b border-border/40 hover:bg-muted/40 transition-colors"
+  {isLoading
+    ? Array.from({ length: 5 }).map((_, i) => (
+        <tr key={i} className="border-b border-border/40">
+          {Array.from({ length: 8 }).map((_, j) => (
+            <td key={j} className="px-4 py-3">
+              <Skeleton className="h-4 w-full rounded" />
+            </td>
+          ))}
+        </tr>
+      ))
+    : !data?.data || data.data.length === 0
+    ? (
+        <tr>
+          <td colSpan={8} className="px-4 py-16 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="p-4 bg-muted rounded-2xl">
+                <Banknote className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <p className="font-semibold">No hay préstamos</p>
+              <p className="text-sm text-muted-foreground">
+                Crea un préstamo desde una solicitud aprobada
+              </p>
+              <Button
+                onClick={() => setCreateOpen(true)}
+                size="sm"
+                className="rounded-xl mt-1"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nuevo Préstamo
+              </Button>
+            </div>
+          </td>
+        </tr>
+      )
+    : data.data.map((loan) => {
+        const st = statusConfig[loan.status];
+        if (!st) return null;
+        return (
+          <motion.tr
+            key={loan.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="border-b border-border/40 hover:bg-muted/40 transition-colors cursor-pointer"
+            onClick={() => openDetail(loan)}
+          >
+            <td className="px-4 py-3">
+              <span className="font-mono text-xs font-semibold text-primary">
+                {loan.loanCode}
+              </span>
+            </td>
+            <td className="px-4 py-3 font-semibold text-foreground">
+              {formatCurrency(loan.approvedAmount)}
+            </td>
+            <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
+              {formatCurrency(loan.totalAmount)}
+            </td>
+            <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
+              {loan.termMonths} meses
+            </td>
+            <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
+              {(loan.interestRate * 100).toFixed(1)}%
+            </td>
+            <td className="px-4 py-3">
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${st.className}`}>
+                {st.label}
+              </span>
+            </td>
+            <td className="px-4 py-3 text-muted-foreground text-xs hidden xl:table-cell">
+              {loan.disbursedAt ? formatDate(loan.disbursedAt) : '—'}
+            </td>
+            <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                  <DropdownMenuItem
+                    onClick={() => openDetail(loan)}
+                    className="gap-2 cursor-pointer"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    Ver detalle
+                  </DropdownMenuItem>
+                  {loan.status === 'APPROVED' && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => openDisburse(loan)}
+                        className="gap-2 cursor-pointer text-emerald-600 focus:text-emerald-600 dark:text-emerald-400 dark:focus:text-emerald-400"
                       >
-                        <td className="px-4 py-3">
-                          <span className="font-mono text-xs font-semibold text-primary">
-                            {loan.loanCode}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 font-semibold text-foreground">
-                          {formatCurrency(loan.approvedAmount)}
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
-                          {formatCurrency(loan.totalAmount)}
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
-                          {loan.termMonths} meses
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
-                          {(loan.interestRate * 100).toFixed(1)}%
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${st.className}`}>
-                            {st.label}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground text-xs hidden xl:table-cell">
-                          {loan.disbursedAt ? formatDate(loan.disbursedAt) : '—'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                              <DropdownMenuItem
-                                onClick={() => openDetail(loan)}
-                                className="gap-2 cursor-pointer"
-                              >
-                                <Eye className="h-3.5 w-3.5" />
-                                Ver detalle
-                              </DropdownMenuItem>
-                              {loan.status === 'APPROVED' && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => openDisburse(loan)}
-                                    className="gap-2 cursor-pointer text-emerald-600 focus:text-emerald-600"
-                                  >
-                                    <Send className="h-3.5 w-3.5" />
-                                    Desembolsar
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </td>
-                      </motion.tr>
-                    );
-                  })}
-              </tbody>
+                        <Send className="h-3.5 w-3.5" />
+                        Desembolsar
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </td>
+          </motion.tr>
+        );
+      })}
+</tbody>
             </table>
           </div>
 
-          {/* Pagination - ✅ Usando valores seguros */}
+          {/* Pagination */}
           {data && data.data && data.data.length > 0 && totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-border/60">
               <p className="text-xs text-muted-foreground">
                 {((currentPage - 1) * currentLimit) + 1}
-                {' '}—{' '}
+                {' — '}
                 {Math.min(currentPage * currentLimit, totalPrestamos)}
-                {' '}de {totalPrestamos}
+                {' de '}
+                {totalPrestamos}
               </p>
               <div className="flex gap-2">
                 <Button
-                  variant="outline" size="sm"
+                  variant="outline"
+                  size="sm"
                   disabled={!hasPrevPage}
                   onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) - 1 }))}
                   className="rounded-xl text-xs h-8"
@@ -304,7 +343,8 @@ export function MainPrestamos() {
                   Anterior
                 </Button>
                 <Button
-                  variant="outline" size="sm"
+                  variant="outline"
+                  size="sm"
                   disabled={!hasNextPage}
                   onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))}
                   className="rounded-xl text-xs h-8"
@@ -331,35 +371,13 @@ export function MainPrestamos() {
         </DialogContent>
       </Dialog>
 
-      {/* Sheet detalle */}
-      <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
-        <SheetContent className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>{selected?.loanCode}</SheetTitle>
-          </SheetHeader>
-          {selected && (
-            <div className="mt-6 space-y-3">
-              {[
-                { label: 'Monto aprobado',  value: formatCurrency(selected.approvedAmount) },
-                { label: 'Total a pagar',   value: formatCurrency(selected.totalAmount) },
-                { label: 'Plazo',           value: `${selected.termMonths} meses` },
-                { label: 'Tasa anual',      value: `${(selected.interestRate * 100).toFixed(2)}%` },
-                { label: 'Amortización',    value: selected.amortization === 'FRENCH' ? 'Francesa' : 'Alemana' },
-                { label: 'Tipo interés',    value: selected.interestType === 'FIXED' ? 'Fijo' : 'Variable' },
-                { label: 'Estado',          value: statusConfig[selected.status]?.label ?? selected.status },
-                { label: 'Desembolso',      value: selected.disbursedAt ? formatDate(selected.disbursedAt) : '—' },
-                { label: 'Vencimiento',     value: selected.dueDate     ? formatDate(selected.dueDate)     : '—' },
-                { label: 'Creado',          value: formatDate(selected.createdAt) },
-              ].map((item) => (
-                <div key={item.label} className="flex justify-between items-center py-2 border-b border-border/40">
-                  <span className="text-sm text-muted-foreground">{item.label}</span>
-                  <span className="text-sm font-semibold text-foreground">{item.value}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
+      {/* LoanDetailDrawer - Panel lateral moderno con bordes redondeados en 4 lados */}
+      <LoanDetailDrawer
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        data={selected ? transformLoanForDrawer(selected) : null}
+        type="loan"
+      />
 
       {/* AlertDialog desembolsar */}
       <AlertDialog open={disburseOpen} onOpenChange={setDisburseOpen}>

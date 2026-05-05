@@ -1,19 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useForm }         from 'react-hook-form';
-import { zodResolver }     from '@hookform/resolvers/zod';
-import { z }               from 'zod';
-import { motion }          from 'framer-motion';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { motion } from 'framer-motion';
 import {
   Eye, EyeOff, Loader2,
-  LogIn,
+  LogIn, AlertCircle,
 } from 'lucide-react';
-import { useState }        from 'react';
-import Link                from 'next/link';
+import { useState } from 'react';
+import Link from 'next/link';
 
-import { Button }   from '@/components/ui/button';
-import { Input }    from '@/components/ui/input';
-import { Label }    from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Card,
   CardContent,
@@ -21,11 +22,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLogin } from '../hooks/use-auth';
 import Image from 'next/image';
 
 const loginSchema = z.object({
-  email:    z.string().email('Correo electrónico inválido'),
+  email: z.string().email('Correo electrónico inválido'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
 });
 
@@ -33,17 +35,50 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const { mutate: login, isPending }    = useLogin();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const loginMutation = useLogin();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
   });
 
-  const onSubmit = (data: LoginForm) => login(data);
+  const onSubmit = async (data: LoginForm) => {
+    // Limpiar error anterior
+    setErrorMessage(null);
+
+    try {
+      await loginMutation.mutateAsync(data);
+      // Si tiene éxito, no hacer nada aquí porque el hook maneja la redirección
+    } catch (error: any) {
+      // Capturar el error y mostrar el mensaje
+      console.log('Error capturado:', error);
+
+      let message = 'Error al iniciar sesión';
+
+      if (error?.response?.data?.message) {
+        message = Array.isArray(error.response.data.message)
+          ? error.response.data.message[0]
+          : error.response.data.message;
+      } else if (error?.message) {
+        message = error.message;
+      }
+
+      setErrorMessage(message);
+      // Limpiar campo de contraseña por seguridad
+      setValue('password', '');
+    }
+  };
+
+  const isPending = loginMutation.isPending;
 
   return (
     <motion.div
@@ -85,6 +120,16 @@ export function LoginForm() {
         </CardHeader>
 
         <CardContent className="space-y-5">
+          {/* Mostrar error de autenticación */}
+          {errorMessage && (
+            <Alert variant="destructive" className="rounded-xl border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-sm">
+                {errorMessage}
+              </AlertDescription>
+            </Alert>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Email */}
             <div className="space-y-1.5">
@@ -127,7 +172,7 @@ export function LoginForm() {
                 >
                   {showPassword
                     ? <EyeOff className="h-4 w-4" />
-                    : <Eye    className="h-4 w-4" />}
+                    : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {errors.password && (
