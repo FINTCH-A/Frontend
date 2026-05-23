@@ -1,17 +1,28 @@
+// src/components/landing/Hero.tsx
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Shield, Clock, BadgeCheck, ArrowRight } from 'lucide-react';
 
 export default function Hero() {
   return (
     <section id="hero" className="min-h-screen flex items-center relative overflow-hidden pt-20">
-      {/* Background */}
-      <div className="absolute inset-0 bg-linear-to-br from-background via-background to-primary/5" />
-      <div className="absolute top-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-10 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+      {/* Fondo con una de tus imágenes */}
+      <div className="absolute inset-0 z-0 opacity-10 dark:opacity-5">
+        <Image
+          src="/el tambo-horizontal.jpeg"
+          alt="Background"
+          fill
+          className="object-cover"
+          priority
+        />
+      </div>
+
+      <div className="absolute inset-0 bg-linear-to-br from-background via-background/80 to-primary/5 z-0" />
 
       <div className="relative z-10 px-8 md:px-16 max-w-170 reveal">
+        {/* Resto del contenido como está */}
         <p className="text-primary text-sm font-medium uppercase mb-6 flex items-center gap-3">
           <span className="w-8 h-px bg-primary"></span>
           Microfinanzas con propósito
@@ -29,7 +40,6 @@ export default function Hero() {
         </p>
 
         <div className="flex gap-4 flex-wrap">
-          {/* Botones principales */}
           <Link
             href="/register"
             className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary/90 transition-all flex items-center gap-2"
@@ -44,19 +54,9 @@ export default function Hero() {
             Iniciar Sesión
           </Link>
         </div>
-
-        {/* Botón adicional para registro rápido */}
-        <div className="mt-6">
-          <p className="text-sm text-muted-foreground">
-            ¿Nuevo aquí?{' '}
-            <Link href="/register" className="text-primary hover:underline font-medium">
-              Crea tu cuenta gratis
-            </Link>
-          </p>
-        </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats con imágenes decorativas pequeñas (opcional) */}
       <div className="absolute bottom-12 left-8 md:left-16 right-8 md:right-16 flex gap-8 flex-wrap z-10 reveal">
         <div className="flex items-center gap-3">
           <Shield className="w-5 h-5 text-primary" />

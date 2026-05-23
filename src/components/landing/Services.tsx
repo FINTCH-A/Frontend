@@ -1,35 +1,62 @@
+// src/components/landing/Services.tsx
 'use client';
 
-import { Building2, Users, TrendingUp, ShieldCheck, Clock, Phone } from 'lucide-react';
+import Image from 'next/image';
+import { CreditCard, TrendingUp, Users } from 'lucide-react';
 
 const services = [
-  { icon: Building2, title: 'Crédito PyME', desc: 'Financiamiento para pequeñas y medianas empresas con tasas preferenciales.' },
-  { icon: Users, title: 'Crédito Emprendedor', desc: 'Impulsa tu negocio desde cero con montos desde S/1,000.' },
-  { icon: TrendingUp, title: 'Crédito Expansión', desc: 'Para negocios que quieren crecer y necesitan capital de trabajo.' },
-  { icon: ShieldCheck, title: 'Seguro incluido', desc: 'Protección gratuita en todos nuestros créditos.' },
-  { icon: Clock, title: 'Aprobación 24h', desc: 'Respuesta rápida y desembolso al día siguiente.' },
-  { icon: Phone, title: 'Asesoría personalizada', desc: 'Ejecutivos dedicados para acompañarte.' },
+  {
+    title: 'Créditos Rápidos',
+    description: 'Aprobación en 24 horas y desembolso inmediato',
+    image: '/giblin 1.jpeg',
+    icon: <CreditCard className="h-6 w-6" />,
+  },
+  {
+    title: 'Expansión de Negocio',
+    description: 'Financiamiento para hacer crecer tu empresa',
+    image: '/giblin 2.png',
+    icon: <TrendingUp className="h-6 w-6" />,
+  },
+  {
+    title: 'Asesoría Financiera',
+    description: 'Acompañamiento personalizado para tu éxito',
+    image: '/tocache.jpeg',
+    icon: <Users className="h-6 w-6" />,
+  },
 ];
 
 export default function Services() {
   return (
-    <section id="servicios" className="py-24 px-8 md:px-16 bg-muted/30">
-      <div className="text-center max-w-2xl mx-auto mb-16 reveal">
-        <p className="text-primary text-sm font-medium mb-3">Nuestros servicios</p>
-        <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-          Soluciones financieras<br />para <span className="text-primary">cada necesidad</span>
-        </h2>
-        <p className="text-muted-foreground mt-4">Ofrecemos productos diseñados para emprendedores y pequeños negocios</p>
-      </div>
+    <section id="servicios" className="py-24 bg-muted/30">
+      <div className="container mx-auto px-8 md:px-16">
+        <div className="text-center mb-12 reveal">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Nuestros Servicios</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Soluciones financieras diseñadas para impulsar tu negocio
+          </p>
+        </div>
 
-      <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto reveal">
-        {services.map((service, idx) => (
-          <div key={idx} className="bg-card p-6 rounded-xl border border-border hover:shadow-lg transition-all hover:-translate-y-1">
-            <service.icon className="w-12 h-12 text-primary mb-4" />
-            <h3 className="text-xl font-semibold text-foreground mb-2">{service.title}</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">{service.desc}</p>
-          </div>
-        ))}
+        <div className="grid md:grid-cols-3 gap-8">
+          {services.map((service, idx) => (
+            <div key={idx} className="reveal bg-card rounded-2xl overflow-hidden border border-border hover:shadow-lg transition-all">
+              <div className="relative h-48">
+                <Image
+                  src={service.image}
+                  alt={service.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  {service.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
+                <p className="text-muted-foreground text-sm">{service.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
