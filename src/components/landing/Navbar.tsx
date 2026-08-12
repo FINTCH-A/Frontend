@@ -29,7 +29,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2">
           {/* Logo para modo claro */}
           <Image
-            src="/logo.png"
+            src="/logo.PNG"
             alt="Avante Fintech"
             width={140}
             height={40}

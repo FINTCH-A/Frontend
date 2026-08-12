@@ -6,45 +6,44 @@
 
 /* =========================
    🎨 THEME - LIGHT MODE
-   Color corporativo: #27BAAE (Teal/Verde azulado)
+   Colores: Azul #0EA5E9, Cyan #0891B2, Turquesa #0D9488
 ========================= */
 :root {
   --font-jakarta: 'Plus Jakarta Sans', sans-serif;
 
-  /* Base */
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
+  /* Base - Fondo principal: #F8FAFC, Texto principal: #0B172A */
+  --background: 210 40% 98%; /* #F8FAFC */
+  --foreground: 222 47% 11%; /* #0B172A */
 
-  /* Cards */
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  /* Cards - Fondo secundario y tarjetas: #FFFFFF */
+  --card: 0 0% 100%; /* #FFFFFF */
+  --card-foreground: 222 47% 11%; /* #0B172A */
 
   /* Popovers / Modals */
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
+  --popover: 0 0% 100%; /* #FFFFFF */
+  --popover-foreground: 222 47% 11%; /* #0B172A */
 
-  /* Primary - Color corporativo #27BAAE */
-  /* Convertido a HSL: #27BAAE = 174°, 65%, 44% */
-  --primary: 174 65% 44%;
+  /* Primary - Azul #0EA5E9 */
+  --primary: 199 89% 48%; /* #0EA5E9 */
   --primary-foreground: 0 0% 100%;
 
-  /* Secondary - Versión más clara del primario */
-  --secondary: 174 40% 96%;
-  --secondary-foreground: 174 65% 35%;
+  /* Secondary - Cyan #0891B2 */
+  --secondary: 191 91% 36%; /* #0891B2 */
+  --secondary-foreground: 0 0% 100%;
 
-  /* Muted */
+  /* Muted - Texto secundario: #64748B */
   --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
+  --muted-foreground: 215 16% 47%; /* #64748B */
 
-  /* Accent - Versión más oscura del primario */
-  --accent: 174 65% 38%;
+  /* Accent - Turquesa #0D9488 */
+  --accent: 174 84% 32%; /* #0D9488 */
   --accent-foreground: 0 0% 100%;
 
   /* Danger */
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  /* Success - Verde complementario */
+  /* Success */
   --success: 142 76% 36%;
   --success-foreground: 0 0% 100%;
 
@@ -56,57 +55,69 @@
   --info: 199 89% 48%;
   --info-foreground: 0 0% 100%;
 
-  /* Borders */
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 174 65% 44%;
+  /* Borders - Bordes: #E2E8F0 */
+  --border: 214 32% 91%; /* #E2E8F0 */
+  --input: 214 32% 91%; /* #E2E8F0 */
+  --ring: 199 89% 48%; /* #0EA5E9 */
 
   --radius: 0.75rem;
 }
 
 /* =========================
-   🌙 DARK MODE (PROFESIONAL)
+   🌙 DARK MODE
+   Colores: Fondo #020B16, Secundario #071522, Tarjetas #0B1B2A
+   Texto principal #F8FAFC, Secundario #94A3B8, Bordes #183044
+   Azul #129BF3, Cyan #06C8D9, Turquesa #19D3B2
 ========================= */
 .dark {
-  --background: 222 47% 6%;
-  --foreground: 210 40% 96%;
+  /* Base - Fondo principal: #020B16, Texto principal: #F8FAFC */
+  --background: 210 85% 5%; /* #020B16 */
+  --foreground: 210 40% 98%; /* #F8FAFC */
 
-  --card: 222 47% 8%;
-  --card-foreground: 210 40% 96%;
+  /* Cards - Fondo secundario: #071522, Tarjetas: #0B1B2A */
+  --card: 210 65% 8%; /* #0B1B2A */
+  --card-foreground: 210 40% 98%; /* #F8FAFC */
 
-  --popover: 222 47% 8%;
-  --popover-foreground: 210 40% 96%;
+  /* Popovers / Modals */
+  --popover: 210 65% 8%; /* #0B1B2A */
+  --popover-foreground: 210 40% 98%; /* #F8FAFC */
 
-  /* Primary - Color corporativo en modo oscuro (más vibrante) */
-  --primary: 174 70% 50%;
-  --primary-foreground: 222 47% 6%;
+  /* Primary - Azul #129BF3 */
+  --primary: 205 90% 51%; /* #129BF3 */
+  --primary-foreground: 0 0% 100%;
 
-  /* Secondary */
-  --secondary: 174 30% 20%;
-  --secondary-foreground: 174 70% 60%;
+  /* Secondary - Cyan #06C8D9 */
+  --secondary: 186 95% 44%; /* #06C8D9 */
+  --secondary-foreground: 0 0% 100%;
 
-  --muted: 222 47% 12%;
-  --muted-foreground: 215 20% 65%;
+  /* Muted - Fondo secundario: #071522, Texto secundario: #94A3B8 */
+  --muted: 210 65% 10%; /* #071522 */
+  --muted-foreground: 215 20% 65%; /* #94A3B8 */
 
-  /* Accent */
-  --accent: 174 65% 42%;
+  /* Accent - Turquesa #19D3B2 */
+  --accent: 170 80% 46%; /* #19D3B2 */
   --accent-foreground: 0 0% 100%;
 
+  /* Danger */
   --destructive: 0 70% 50%;
   --destructive-foreground: 0 0% 100%;
 
+  /* Success */
   --success: 142 70% 45%;
   --success-foreground: 0 0% 100%;
 
+  /* Warning */
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;
 
+  /* Info */
   --info: 199 89% 48%;
   --info-foreground: 0 0% 100%;
 
-  --border: 222 47% 15%;
-  --input: 222 47% 15%;
-  --ring: 174 70% 50%;
+  /* Borders - Bordes: #183044 */
+  --border: 210 50% 18%; /* #183044 */
+  --input: 210 50% 18%; /* #183044 */
+  --ring: 205 90% 51%; /* #129BF3 */
 }
 
 /* =========================
@@ -166,8 +177,8 @@
   .ring-ring { --tw-ring-color: hsl(var(--ring)); }
 
   /* Hover states */
-  .hover\:bg-primary-dark:hover { background-color: hsl(174 65% 35%); }
-  .hover\:bg-primary-light:hover { background-color: hsl(174 65% 50%); }
+  .hover\:bg-primary-dark:hover { background-color: hsl(199 89% 38%); }
+  .hover\:bg-primary-light:hover { background-color: hsl(199 89% 58%); }
 }
 
 /* =========================
@@ -194,7 +205,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 .btn-primary:hover {
-  background-color: hsl(174 65% 38%);
+  background-color: hsl(199 89% 38%);
 }
 
 /* Cards */
@@ -234,7 +245,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 .sidebar-item:hover {
-  background-color: hsl(var(--secondary));
+  background-color: hsl(var(--secondary) / 0.1);
   color: hsl(var(--primary));
 }
 
@@ -305,15 +316,15 @@ input:focus, textarea:focus, select:focus {
    🎨 GRADIENT UTILITIES
 ========================= */
 .bg-gradient-primary {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(174 65% 35%) 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(199 89% 38%) 100%);
 }
 
 .bg-gradient-dark {
-  background: linear-gradient(135deg, hsl(222 47% 8%) 0%, hsl(222 47% 6%) 100%);
+  background: linear-gradient(135deg, hsl(210 65% 8%) 0%, hsl(210 85% 5%) 100%);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(174 65% 35%) 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(199 89% 38%) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;

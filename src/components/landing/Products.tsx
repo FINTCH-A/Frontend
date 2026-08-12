@@ -5,24 +5,24 @@ import Image from 'next/image';
 
 const locations = [
   {
-    name: 'El Tambo',
+    name: 'Equipo 1',
     description: 'Sucursal principal',
-    image: '/el tambo-horizontal.jpeg',
+    image: '/Equipo2.jpg',
   },
   {
-    name: 'El Tambo B',
+    name: 'Equipo 2',
     description: 'Agencia secundaria',
-    image: '/el tambo b.jpeg',
+    image: '/Equipo3.jpg',
   },
   {
-    name: 'Giblin',
+    name: 'Equipo 3',
     description: 'Oficina comercial',
-    image: '/giblin 1.jpeg',
+    image: '/giblin1.jpg',
   },
   {
-    name: 'Tocache',
+    name: 'Equipo 4',
     description: 'Punto de atención',
-    image: '/tocache.jpeg',
+    image: '/Equipo1.jpg',
   },
 ];
 

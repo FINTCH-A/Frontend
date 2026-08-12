@@ -8,19 +8,19 @@ const services = [
   {
     title: 'Créditos Rápidos',
     description: 'Aprobación en 24 horas y desembolso inmediato',
-    image: '/giblin 1.jpeg',
+    image: '/giblin1.jpg',
     icon: <CreditCard className="h-6 w-6" />,
   },
   {
     title: 'Expansión de Negocio',
     description: 'Financiamiento para hacer crecer tu empresa',
-    image: '/giblin 2.png',
+    image: '/giblin2.jpg',
     icon: <TrendingUp className="h-6 w-6" />,
   },
   {
     title: 'Asesoría Financiera',
     description: 'Acompañamiento personalizado para tu éxito',
-    image: '/tocache.jpeg',
+    image: '/Equipo1.jpg',
     icon: <Users className="h-6 w-6" />,
   },
 ];

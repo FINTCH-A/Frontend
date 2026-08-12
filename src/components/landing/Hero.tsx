@@ -11,7 +11,7 @@ export default function Hero() {
       {/* Fondo con una de tus imágenes */}
       <div className="absolute inset-0 z-0 opacity-10 dark:opacity-5">
         <Image
-          src="/el tambo-horizontal.jpeg"
+          src="/Equipo2.jpg"
           alt="Background"
           fill
           className="object-cover"
