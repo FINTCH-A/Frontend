@@ -30,7 +30,7 @@ export default function Navbar() {
           {/* Logo para modo claro */}
           <Image
             src="/logo.PNG"
-            alt="Avante Fintech"
+            alt="Fintech"
             width={140}
             height={40}
             className="block dark:hidden"
@@ -39,7 +39,7 @@ export default function Navbar() {
           {/* Logo para modo oscuro */}
           <Image
             src="/logo-dark.png"
-            alt="Avante Fintech"
+            alt="Fintech"
             width={140}
             height={40}
             className="hidden dark:block"
