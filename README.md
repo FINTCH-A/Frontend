@@ -207,15 +207,15 @@ features/[nombre]/
 | Módulo | Frontend | Backend | Integración |
 |--------|----------|---------|-------------|
 | Autenticación | ✅ 100% | ✅ 100% | ✅ Conectado |
-| Dashboard | ✅ 100% | 🔜 Pendiente | 🔜 Pendiente |
-| Usuarios | ✅ 100% | ✅ 100% | 🔜 Pendiente |
-| Préstamos | ✅ 100% | ✅ 100% | 🔜 Pendiente |
-| Solicitudes | ✅ 100% | ✅ 100% | 🔜 Pendiente |
-| Pagos | ✅ 100% | ✅ 100% | 🔜 Pendiente |
-| Cuotas | ✅ 100% | ✅ 100% | 🔜 Pendiente |
-| Notificaciones | ✅ 100% | ✅ 100% | 🔜 Pendiente |
+| Dashboard | ✅ 100% | ✅ 100% | ✅ Conectado |
+| Usuarios | ✅ 100% | ✅ 100% | ✅ Conectado |
+| Préstamos | ✅ 100% | ✅ 100% | ✅ Conectado |
+| Solicitudes | ✅ 100% | ✅ 100% | ✅ Conectado |
+| Pagos | ✅ 100% | ✅ 100% | ✅ Conectado |
+| Cuotas | ✅ 100% | ✅ 100% | ✅ Conectado |
+| Notificaciones | ✅ 100% | ✅ 100% | ✅ Conectado |
 | Credit Score | ✅ 100% | 🔜 Pendiente | 🔜 Pendiente |
-| Portal Cliente | ✅ 100% | 🔜 Pendiente | 🔜 Pendiente |
+| Portal Cliente | ✅ 100% | ✅ 100% | ✅ Conectado |
 
 ---
 
